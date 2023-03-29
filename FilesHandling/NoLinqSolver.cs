@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -9,16 +10,57 @@ namespace FilesHandling
     {
         public string LongestFileName { get; set; }
         public string BiggestFiles{ get; set; }
+        public string BiggestGroupsFiles{ get; set; }
+        public string FilesGroupedExtension{ get; set; }
+        public List<double> time = new List<double>();
+        public bool flagFileNotExist = true;
         public NoLinqSolver()
         {
             LongestFileName = string.Empty;
             BiggestFiles = string.Empty;
+            BiggestGroupsFiles = string.Empty;
+            FilesGroupedExtension = string.Empty;
+            
         }
         
-        public NoLinqSolver(string filePath, int amount = 3)
+        public NoLinqSolver(string filePath, int amount = 3, int interval = 10)
         {
+            foreach (var file in Directory.EnumerateFiles(filePath, "*.*", SearchOption.AllDirectories))
+            {
+                flagFileNotExist = false;
+            }
+
+            if (flagFileNotExist)
+            {
+                LongestFileName = string.Empty;
+                BiggestFiles = string.Empty;
+                BiggestGroupsFiles = string.Empty;
+                FilesGroupedExtension = string.Empty;
+                time = new List<double>(4){0,0,0,0};
+                return;
+            };
+            
+            var sw = new Stopwatch();
+            sw.Start();
             LongestFileName = FindLongestFileName(filePath);
+            sw.Stop();
+            time.Add(sw.ElapsedTicks);
+            sw.Reset();
+            sw.Start();
             BiggestFiles = FindBiggestFiles(filePath, amount);
+            sw.Stop();
+            time.Add(sw.ElapsedTicks);
+            sw.Reset();
+            sw.Start();
+            BiggestGroupsFiles = FindBiggestGroupsFiles(filePath, interval);
+            sw.Stop();
+            time.Add(sw.ElapsedTicks);
+            sw.Reset();
+            sw.Start();
+            FilesGroupedExtension = AllocationFilesExtension(filePath);
+            sw.Stop();
+            time.Add(sw.ElapsedTicks);
+            
         }   
         
         public string FindLongestFileName(string path)
@@ -98,8 +140,8 @@ namespace FilesHandling
                 neededKey = res.Key;
             }
             
-            return resulting[neededKey].TrimEnd(' ').TrimEnd(',') + " созданы в интервал " + neededKey.AddMinutes(-interval).Hour + "." + 
-                   neededKey.AddMinutes(-interval).Minute + "-" + neededKey.Hour + "." + neededKey.Minute + " " + neededKey.ToShortDateString();
+            return resulting[neededKey].TrimEnd(' ').TrimEnd(',') + " созданы в интервале " + neededKey.AddMinutes(-interval).Hour + ":" + 
+                   neededKey.AddMinutes(-interval).Minute + "-" + neededKey.Hour + ":" + neededKey.Minute + " " + neededKey.ToShortDateString();
         }
 
         public string AllocationFilesExtension(string path)
@@ -116,7 +158,7 @@ namespace FilesHandling
                 result.Add(fileInfo.Extension, fileInfo.Name);
             }
 
-            var res = result.Aggregate(string.Empty, (current, item) => current + ("\n" + item.Key + " " + item.Value));
+            var res = result.Aggregate(string.Empty, (current, item) => current + ("\n Расширение: [" + item.Key + "] " + item.Value));
             
             return res;
         }
