@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 
 
 namespace FilesHandling
@@ -70,9 +71,12 @@ namespace FilesHandling
         private void FillChart()
         {
             chart1.Series[0].Points.Clear();
-            for (var i = 0; i < grid1.RowCount * 2; i++)
+            //extra task
+            chart1.Series[1].Points.Clear();
+            for (var i = 0; i < grid1.RowCount * 2 - 2; i++)
             {
-                chart1.Series[0].Points.AddXY(
+                //extra task
+                chart1.Series[i % 2].Points.AddXY(
                     grid1[0, 
                         i % 2 == 1 
                         ? (i - 1) / 2
@@ -82,6 +86,13 @@ namespace FilesHandling
                         ? (i - 1) / 2
                         : i  / 2].Value);
                 
+            }
+            //extra task
+            chart2.Series[0].Points.Clear();
+            var k = 1;
+            foreach (var group in _noLinqSolver.filesGrouped)
+            {
+                chart2.Series[0].Points.AddXY(group.Key, group.Value.Trim(' ').Split(',').Length);
             }
         }
     }

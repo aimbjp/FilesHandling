@@ -12,6 +12,7 @@ namespace FilesHandling
         public string BiggestFiles{ get; set; }
         public string BiggestGroupsFiles{ get; set; }
         public string FilesGroupedExtension{ get; set; }
+        public Dictionary<string, string> filesGrouped;
         public List<double> time = new List<double>();
         public bool flagFileNotExist = true;
         public NoLinqSolver()
@@ -158,6 +159,7 @@ namespace FilesHandling
                 result.Add(fileInfo.Extension, fileInfo.Name);
             }
 
+            filesGrouped = result;
             var res = result.Aggregate(string.Empty, (current, item) => current + ("\n Расширение: [" + item.Key + "] " + item.Value));
             
             return res;
